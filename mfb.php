@@ -13,6 +13,13 @@ test:098f6bcd4621d373cade4e832627b4f6 (test/test)
 */
 $pass = '';
 
+
+
+/*
+Enables downloading files
+*/
+$download = false;
+
 /* authentification + autoremove */
 if ($pass) {
   if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != explode(":", $pass) [0] || md5($_SERVER['PHP_AUTH_PW']) != explode(":", $pass) [1]) {
@@ -27,9 +34,11 @@ if (($aging && time() - filectime(__FILE__) > $aging) || isset($_GET['remove']))
   else die('not removed!');
 }
 
-main(__DIR__);
+if ($download && isset($_GET['down'])) download($_GET['down']);
 
-function main($dir)
+main(__DIR__,$download);
+
+function main($dir,$download)
 {
   
   echo "<h1>Mini File Browser</h1>";       
@@ -65,6 +74,7 @@ function main($dir)
     echo "</td><td>";
     echo $my_perm;
     echo "</td><td>";
+    if($download && is_readable($real) && $size) echo '<a href="?down='.$real.'">download</a> ';
     echo $size;
     echo "</td></tr>";
   }
@@ -128,4 +138,12 @@ function FileSizeConvert($bytes)
   }
 
   return $result;
+}
+
+function download($file){
+  header("Content-Type: application/octet-stream");
+  header("Content-Transfer-Encoding: Binary");
+  header("Content-disposition: attachment; filename=\"".basename($file)."\""); 
+  echo readfile($file);
+  exit();
 }
