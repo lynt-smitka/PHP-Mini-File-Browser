@@ -48,7 +48,12 @@ function main($dir)
     if (is_executable($real)) $my_perm.= 'X';
     echo "<tr><td>";
     if (is_dir($real)) {
-      echo '<a href="?dir=' . $real . '">' . $files[$i] . "</a>";
+      if($files[$i]=='..')
+        echo '<a href="?dir=' . $real . '">[ UP ]</a>';
+      elseif ($files[$i]=='.')
+        echo $dir;
+      else
+        echo '<a href="?dir=' . $real . '">' . $files[$i] . "</a>";
     }
     else {
       echo $files[$i];
@@ -77,7 +82,14 @@ function info()
   echo '<p><b>PHP version:</b> ' . phpversion() . '</p>';
   echo '<p><b>PHP extensions:</b> ' . implode(', ', get_loaded_extensions()) . '</p>';
   echo '<p><b>PHP disable functions:</b> ' . ini_get('disable_functions') . '</p>';
-  echo '<p><b>Open Basedir:</b> ' . ini_get('open_basedir') . '</p>';
+  echo '<p><b>Open Basedir:</b> ';
+  
+  $basedirs= explode(":",ini_get('open_basedir'));
+  $num = sizeof($basedirs);
+  for($i=0;$i<$num;$i++){
+    echo '<a href="?dir='.$basedirs[$i].'">'.$basedirs[$i].'</a> ';
+  }
+  echo '</p>';
 }
 
 
