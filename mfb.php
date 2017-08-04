@@ -29,6 +29,12 @@ if ($pass) {
   }
 }
 
+/*
+Enables console - may be dangerous!
+*/
+$console = false;
+
+
 if (($aging && time() - filectime(__FILE__) > $aging) || isset($_GET['remove'])) {
   if (unlink(__FILE__)) die('removed!');
   else die('not removed!');
@@ -36,12 +42,17 @@ if (($aging && time() - filectime(__FILE__) > $aging) || isset($_GET['remove']))
 
 if ($download && isset($_GET['down'])) download($_GET['down']);
 
-main(__DIR__,$download);
+main(__DIR__,$download,$console);
 
-function main($dir,$download)
+function main($dir,$download,$console)
 {
   
-  echo "<h1>Mini File Browser</h1>";       
+  echo "<h1>Mini File Browser</h1>";
+    
+  if($console){
+    console();  
+  }
+         
   echo "<table border='1' style='border-collapse:collapse'>";
   if (isset($_GET['dir'])) $dir = $_GET['dir'];
   $files = scandir($dir);
@@ -81,8 +92,9 @@ function main($dir,$download)
 
   echo "</table>";
   info();
+
   echo "<p><a href='?remove'>Remove me</a></p>";
-  echo "<p>Author: <a href='https://lynt.cz'>Lynt services s.r.o.</a></p>";
+  echo "<p>Author: <a href='https://twitter.com/smitka'>Vladimir Smitka</a>, <a href='https://lynt.cz'>Lynt services s.r.o.</a></p>";
 }
 
 
@@ -100,8 +112,67 @@ function info()
     echo '<a href="?dir='.$basedirs[$i].'">'.$basedirs[$i].'</a> ';
   }
   echo '</p>';
+  echo '<a href="?info">PHPinfo()</a>';
+  
+  
+  if(isset($_GET['info'])){
+    phpinfo();
+  }
+  
 }
 
+
+function console()
+{
+  echo '<form method="POST">';
+  echo '<input type="radio" name="method" value="system" checked> system()<br>';
+  echo '<input type="radio" name="method" value="backtick"> backtick<br>';
+  echo '<input type="radio" name="method" value="exec"> exec()<br>';
+  echo '<input type="radio" name="method" value="shell_exec"> shell_exec()<br>';
+  echo '<input type="radio" name="method" value="passthru"> passthru()<br>';
+  echo '<input type="radio" name="method" value="proc_open"> proc_open()<br>';
+  echo '<input type="radio" name="method" value="popen"> popen()<br>';
+  echo '<input type="radio" name="method" value="pcntl_exec"> pcntl_exec()<br>';      
+  echo '<input name="command">';
+  echo '<button type="submit">RUN</button>';
+  echo '</form>';
+
+  if(isset($_POST['command'])){
+    $command = escapeshellcmd($_POST['command']);
+    echo '<h3>Result:</h3><pre>';
+    switch($_POST['method']){
+
+      case 'system': echo system($command);break;
+
+      case 'backtick': echo `$command`;break;
+
+      case 'exec': exec($command,$tmp);print_r($tmp);break;
+
+      case 'shell_exec': echo shell_exec($command);break;
+
+      case 'passthru': passthru($command);break;
+
+      case 'proc_open':
+        $pr = proc_open($command,array(0=>array('pipe','r'),1=>array('pipe','w'),2=>array('pipe','w')),$pipes); 
+        echo stream_get_contents($pipes[1]);
+        fclose($pipes[0]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        break;
+    
+      case 'popen':
+        $fp = popen($command, "r"); 
+        echo stream_get_contents($fp);
+        fclose($fp);
+        break;
+      }
+      
+
+        
+    echo '</pre><br>';
+  }
+
+}
 
 function FileSizeConvert($bytes)
 {
