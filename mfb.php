@@ -13,14 +13,15 @@ test:098f6bcd4621d373cade4e832627b4f6 (test/test)
 */
 $pass = '';
 
-
-
 /*
-Enables downloading files
+IP limit
+e.g.
+$ips = '192.168.1.1;192.168.1.2'
 */
-$download = false;
+$ips = '';
 
-/* authentification + autoremove */
+
+/* authentification */
 if ($pass) {
   if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != explode(":", $pass) [0] || md5($_SERVER['PHP_AUTH_PW']) != explode(":", $pass) [1]) {
     header('WWW-Authenticate: Basic realm="Mini File Browser"');
@@ -29,16 +30,35 @@ if ($pass) {
   }
 }
 
+/* IP limit */
+if($ips){
+  $ips = explode(';',$ips);
+  $client_ip = $_SERVER['REMOTE_ADDR'];
+  //use this (or other appropriate) header if your script is behind proxy
+  //it can be spoofed by attacker 
+  //$client_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+  if (!in_array ($client_ip, $ips)){
+    die('IP is not allowed!');
+  }
+}
+
+/* autoremove */
+if (($aging && time() - filectime(__FILE__) > $aging) || isset($_GET['remove'])) {
+  if (unlink(__FILE__)) die('removed!');
+  else die('not removed!');
+}
+
+
+/*
+Enables downloading files
+*/
+$download = false;
+
 /*
 Enables console - may be dangerous!
 */
 $console = false;
 
-
-if (($aging && time() - filectime(__FILE__) > $aging) || isset($_GET['remove'])) {
-  if (unlink(__FILE__)) die('removed!');
-  else die('not removed!');
-}
 
 if ($download && isset($_GET['down'])) download($_GET['down']);
 
