@@ -7,9 +7,9 @@ $aging = 1 * 3600;
 
 /*
 HTTP BaseAuth
-name:md5_hash
+name:sha256_hash
 e.g.
-test:098f6bcd4621d373cade4e832627b4f6 (test/test)
+$pass = 'test:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'; //(test/test)
 */
 $pass = '';
 
@@ -23,7 +23,7 @@ $ips = '';
 
 /* authentification */
 if ($pass) {
-  if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != explode(":", $pass) [0] || md5($_SERVER['PHP_AUTH_PW']) != explode(":", $pass) [1]) {
+  if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != explode(":", $pass) [0] || hash ( 'sha256' , $_SERVER['PHP_AUTH_PW']) != explode(":", $pass) [1]) {
     header('WWW-Authenticate: Basic realm="Mini File Browser"');
     header('HTTP/1.0 401 Unauthorized');
     die('unauthorized!');
