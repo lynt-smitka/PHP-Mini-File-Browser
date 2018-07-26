@@ -7,6 +7,8 @@ This is really simple&primitive and dangerous script allows you:
 
 The script will **delete itself after 1 hour** for security reasons (you can configure this behavior). It is also possible to set credentials to use this script, of course.
 
+You can apply the simmilar access limiting functions to your own scripts via https://blocking.top/.
+
 ## File browser
 ![File browser](http://internal.lynt.cz/grafika/mfb1.png)
 
