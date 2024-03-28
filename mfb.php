@@ -54,16 +54,23 @@ Enables downloading files
 $download = false;
 
 /*
+Enables uploading files - may be dangerous!
+*/
+$upload = false;
+
+/*
 Enables console - may be dangerous!
 */
 $console = false;
 
 
-if ($download && isset($_GET['down'])) download($_GET['down']);
+if ($download && isset($_GET['down'])) {
+  download($_GET['down']);
+}
 
-main(__DIR__,$download,$console);
+main(__DIR__,$download,$upload,$console);
 
-function main($dir,$download,$console)
+function main($dir,$download,$upload,$console)
 {
   
   echo "<h1>Mini File Browser</h1>";
@@ -71,7 +78,11 @@ function main($dir,$download,$console)
   if($console){
     console();  
   }
-         
+
+  if($upload){
+    upload();  
+  }
+
   echo "<table border='1' style='border-collapse:collapse'>";
   if (isset($_GET['dir'])) $dir = $_GET['dir'];
   $files = scandir($dir);
@@ -113,7 +124,7 @@ function main($dir,$download,$console)
   info();
 
   echo "<p><a href='?remove'>Remove me</a></p>";
-  echo "<p>Author: <a href='https://twitter.com/smitka'>Vladimir Smitka</a>, <a href='https://lynt.cz'>Lynt services s.r.o.</a></p>";
+  echo "<p>Author: <a href='https://twitter.com/smitka'>Vladimir Smitka</a>, <a href='https://lynt.cz'>Lynt services s.r.o.</a>, <a href='https://smitka.me'>Security Blog</a>,</p>";
 }
 
 
@@ -140,7 +151,28 @@ function info()
   
 }
 
+function upload(){
 
+  $defaultFilePath = __DIR__ . '/mfb-file.php';
+
+  echo '<form method="POST">';
+  echo '<input type="text" name="fileUrl" size="56"><br>';
+  echo '<input type="text" name="filePath" size="56" value="'.htmlspecialchars($defaultFilePath).'"><br>';
+  echo '<input type="submit" name="fileUpload" value="Upload">';
+  echo '</form>';
+  
+  if(isset($_POST['fileUpload'])){
+
+    $fileUrl = $_POST['fileUrl'];
+    $filePath = $_POST['filePath'];
+    $fileContent = file_get_contents($fileUrl);
+    if($fileContent !== false) {
+        file_put_contents($filePath, $fileContent);
+    }
+  }
+
+
+}
 function console()
 {
   echo '<form method="POST">';
@@ -243,6 +275,6 @@ function download($file){
   header("Content-Type: application/octet-stream");
   header("Content-Transfer-Encoding: Binary");
   header("Content-disposition: attachment; filename=\"".basename($file)."\""); 
-  echo readfile($file);
+  readfile($file);
   exit();
 }
