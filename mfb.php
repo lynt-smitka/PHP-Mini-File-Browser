@@ -134,6 +134,16 @@ function info()
   echo '<p><b>PHP version:</b> ' . phpversion() . '</p>';
   echo '<p><b>PHP extensions:</b> ' . implode(', ', get_loaded_extensions()) . '</p>';
   echo '<p><b>PHP disable functions:</b> ' . ini_get('disable_functions') . '</p>';
+  echo '<p><b>PHP dangerous functions:</b> ';
+  echo is_enabled('system') . ' ';
+  echo is_enabled('exec') . ' ';
+  echo is_enabled('shell_exec') . ' ';
+  echo is_enabled('passthru') . ' ';
+  echo is_enabled('proc_open') . ' ';
+  echo is_enabled('popen') . ' ';
+  echo is_enabled('pcntl_exec') . ' ';
+  echo is_enabled('putenv') . ' ';
+  echo '</p>';
   echo '<p><b>Open Basedir:</b> ';
   
   $basedirs= explode(":",ini_get('open_basedir'));
@@ -269,6 +279,22 @@ function FileSizeConvert($bytes)
   }
 
   return $result;
+}
+
+function is_enabled($func) {
+
+    if (!function_exists($func)) {
+        return "<s>$func</s>";
+    }
+
+    $disabledFunctions = array_map('trim', explode(',', ini_get('disable_functions')));
+
+    if (in_array($func, $disabledFunctions)) {
+        return "<s>$func</s>";
+    }
+
+    return "<b>$func</b>";
+
 }
 
 function download($file){
