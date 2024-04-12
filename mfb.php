@@ -555,9 +555,9 @@ function read($file, $method)
       $mime = 'image/jpeg';
       break;
     case "jpeg":
-        $is_img = true;
-        $mime = 'image/jpeg';
-        break;
+      $is_img = true;
+      $mime = 'image/jpeg';
+      break;
     case "png":
       $is_img = true;
       $mime = 'image/png';
@@ -571,21 +571,18 @@ function read($file, $method)
       $mime = 'image/webp';
       break;
     case "svg":
-        $is_img = true;
-        $mime = 'image/svg+xml';
-        break;
+      $is_img = true;
+      $mime = 'image/svg+xml';
+      break;
     case "zip":
       $is_archive = true;
       break;
-
     case "tgz":
       $is_archive = true;
       break;
-
     case "tar":
       $is_archive = true;
       break;
-
     case "gz":
       $is_archive = true;
       break;
