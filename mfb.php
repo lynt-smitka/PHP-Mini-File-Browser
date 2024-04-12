@@ -1,23 +1,39 @@
 <?php
+/* ================= SETTINGS ================= */
 /*
 $aging = 0 disables the auto remove functionality
 */
 $aging = 1 * 3600;
+
 /*
 HTTP BaseAuth
 name:sha256_hash
-e.g.
-$pass = 'test:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'; //(test/test)
+e.g. $pass = 'test:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'; //(test/test)
 */
 $pass = '';
 $salt = '';
+
 /*
 IP limit
-e.g.
-$ips = '192.168.1.1;192.168.1.2'
+e.g. $ips = '192.168.1.1;192.168.1.2'
 */
 $ips = '';
 
+/* Enables downloading files */
+$download = false;
+
+/* Enables reading files */
+$read = false;
+
+/* Enables uploading files - may be dangerous! */
+$upload = false;
+
+/* Enables console - may be dangerous! */
+$console = false;
+
+$timezone = 'Europe/Prague';
+
+/* =============== END SETTINGS =============== */
 
 /* authentification */
 if ($pass) {
@@ -48,21 +64,7 @@ if (($aging && time() - filectime(__FILE__) > $aging) || isset($_GET['remove']))
     die('not removed!');
 }
 
-
-/* Enables downloading files */
-$download = false;
-
-/* Enables readinging files */
-$read = false;
-
-/* Enables uploading files - may be dangerous! */
-$upload = false;
-
-/* Enables console - may be dangerous! */
-$console = false;
-
-
-date_default_timezone_set('Europe/Prague');
+date_default_timezone_set($timezone);
 
 $method = isset($_GET['m']) ? $_GET['m'] : 'php';
 
