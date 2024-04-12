@@ -76,6 +76,7 @@ main(__DIR__, $download, $upload, $read, $console, $method);
 function main($dir, $download, $upload, $read, $console, $method)
 {
   echo "<style>body{font-family:monospace;}td{padding:2px 4px;}tr:nth-child(even),pre{background-color: #f4f4f4;}a:hover{color:#008fff}</style>";
+  echo "<style>@media (prefers-color-scheme: dark){body{background-color: #151619;color: #fff;}a{color:#b6ff00}a:visited{color:#78a900}a:hover{color:#e6f939}tr:nth-child(even),pre{background-color: #333;}}</style>";
   echo "<h1>Mini File Browser</h1>";
 
   if ($console) {
