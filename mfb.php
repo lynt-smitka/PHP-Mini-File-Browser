@@ -3,7 +3,6 @@
 $aging = 0 disables the auto remove functionality
 */
 $aging = 1 * 3600;
-$aging = 0;
 /*
 HTTP BaseAuth
 name:sha256_hash
