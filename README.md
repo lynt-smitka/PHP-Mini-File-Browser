@@ -12,7 +12,7 @@ This is really simple&primitive and dangerous script which allows you:
 The script will **delete itself after 1 hour** for security reasons (you can configure this behavior). It is also possible to set credentials to use this script, of course.
 
 > [!CAUTION]
-> Do not grant “MFB” access to untrusted users, as a skilled user could escalate their privileges and do anything to your site and server 😉.
+> Do not grant “MFB” access to untrusted users, as a skilled user could escalate their privileges and do anything to your site and server 😉. The script is full of security threats and can cause FPD, XSS, SQLi, SSRF, LFI, RCE, WTF, etc.
 
 ## File browser
 ![mfb-file-browser](https://github.com/lynt-smitka/PHP-Mini-File-Browser/assets/3875093/29802d82-7509-463e-b874-5cefd32350d6)
