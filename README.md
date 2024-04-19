@@ -1,4 +1,7 @@
 # PHP-Mini-File-Browser
+
+[My writeup about this tool](https://smitka.me/2024/04/12/php-mini-file-browser-update/)
+
 This is really simple&primitive and dangerous script which allows you:
 - iterate throw directory structure and show permissions, it uses 2 methods:
    - plain PHP which can be limited via open_basedir
