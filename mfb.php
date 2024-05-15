@@ -625,7 +625,10 @@ function read_archive($content, $file_name)
   }
 }
 
-function f($function, ...$params) {
+function f($function) {
+  $params = func_get_args();
+  array_shift($params);
+  
   if (function_exists($function)) {
       try {
           return call_user_func_array($function, $params);
